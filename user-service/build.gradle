@@ -1,0 +1,97 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+ext {
+    springCloudVersion = "2023.0.3"
+}
+
+group = 'com.nninjoon'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 웹 애플리케이션 관련 (웹 서버, REST API)
+    // Spring Web - 웹 애플리케이션 및 RESTful API 구축을 위한 기본 스타터
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 서비스 등록 및 디스커버리 (Eureka)
+    // Eureka Client - 마이크로서비스를 Eureka 서버에 등록하고 다른 서비스와의 디스커버리 기능을 지원
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // 데이터베이스 및 JPA 관련
+    // Spring Data JPA - 데이터베이스 작업을 위한 JPA 지원 제공
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // postgre Database - 데이터베이스
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // 데이터 유효성 검증
+    // Validation - 데이터 유효성 검사를 위한 지원 제공
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring Cloud Config 관련 (중앙화된 설정 관리)
+    // Spring Cloud Config - 중앙 설정 서버와의 통합을 위한 라이브러리
+//    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    // Spring Cloud Bootstrap - Spring Cloud 설정을 초기화 단계에서 로드하여 Config Server와 통합을 지원
+//    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+    // Spring Cloud Bus 관련 (설정 변경 전파 및 이벤트 전파)
+    // Spring Cloud Bus AMQP - Spring Cloud Bus를 통해 RabbitMQ로 설정 변경 및 이벤트를 전파
+//    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+
+    // 보안 관련
+    // Spring Security - 애플리케이션 보안을 위한 기본적인 인증과 권한 부여 기능 제공
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // JWT (JSON Web Token) - JWT를 사용한 토큰 기반 인증 지원
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // 모델 매핑
+    // ModelMapper - DTO와 엔티티 간의 매핑을 간편하게 해주는 라이브러리
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+
+    // 모니터링 및 관리
+    // Spring Boot Actuator - 애플리케이션 상태 모니터링 및 관리 엔드포인트 제공
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Lombok (코드 간소화)
+    // Lombok - 반복적인 코드를 줄이기 위해 Getter, Setter, Constructor 등을 자동 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 개발 환경 전용 의존성
+    // DevTools - 개발 시 자동 재시작, 캐시 비우기 등 개발자 편의 기능 제공
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 테스트 관련 의존성
+    // Spring Boot Test - 통합 테스트 및 Mocking 기능 제공
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Spring Security Test - 보안 관련 기능의 테스트 지원
+    testImplementation 'org.springframework.security:spring-security-test'
+    // RabbitMQ Test - RabbitMQ 관련 테스트 기능 제공
+//    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+    // JUnit Platform Launcher - JUnit 5 기반 테스트 실행기
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
