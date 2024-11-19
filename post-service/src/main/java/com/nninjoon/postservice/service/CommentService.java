@@ -1,4 +1,9 @@
-package com.example.msablog.post.service;
+package com.nninjoon.postservice.service;
+
+import java.time.LocalDateTime;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.msablog.post.dto.CommentUploadRequestDto;
 import com.example.msablog.post.entity.Comment;
@@ -7,11 +12,8 @@ import com.example.msablog.post.repository.CommentRepository;
 import com.example.msablog.post.repository.PostRepository;
 import com.example.msablog.user.config.jwt.JwtUtil;
 import com.example.msablog.user.entity.User;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

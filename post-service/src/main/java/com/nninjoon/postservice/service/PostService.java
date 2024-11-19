@@ -1,30 +1,30 @@
-package com.example.msablog.post.service;
-
-import com.example.msablog.post.dto.CommentResponseDto;
-import com.example.msablog.post.dto.PostDetailResponseDto;
-import com.example.msablog.post.dto.PostUploadRequestDto;
-import com.example.msablog.post.dto.ReadPostResponseDto;
-import com.example.msablog.post.entity.Comment;
-import com.example.msablog.post.entity.Hashtag;
-import com.example.msablog.post.entity.Post;
-import com.example.msablog.post.entity.PostHashtag;
-import com.example.msablog.post.repository.HashtagRepository;
-import com.example.msablog.post.repository.PostHashtagRepository;
-import com.example.msablog.post.repository.PostJQueryRepository;
-import com.example.msablog.post.repository.PostRepository;
-import com.example.msablog.user.config.jwt.JwtUtil;
-import com.example.msablog.user.entity.User;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+package com.nninjoon.postservice.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nninjoon.postservice.dto.CommentResponseDto;
+import com.nninjoon.postservice.dto.PostDetailResponseDto;
+import com.nninjoon.postservice.dto.PostUploadRequestDto;
+import com.nninjoon.postservice.dto.ReadPostResponseDto;
+import com.nninjoon.postservice.entity.Comment;
+import com.nninjoon.postservice.entity.Hashtag;
+import com.nninjoon.postservice.entity.Post;
+import com.nninjoon.postservice.entity.PostHashtag;
+import com.nninjoon.postservice.repository.HashtagRepository;
+import com.nninjoon.postservice.repository.PostHashtagRepository;
+import com.nninjoon.postservice.repository.PostJQueryRepository;
+import com.nninjoon.postservice.repository.PostRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +33,6 @@ public class PostService {
     private final PostJQueryRepository postJQueryRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
-    private final JwtUtil jwtUtil;
-
     @Transactional(readOnly = true)
     public Page<ReadPostResponseDto> findAll(Pageable pageable) {
         return postJQueryRepository.findAll(pageable);
@@ -50,8 +48,6 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new RuntimeException("Post not found")
         );
-
-        User current = jwtUtil.getCurrentUser();
 
         if (current.getId().equals(post.getAuthor().getId())) {
             return post;
@@ -83,7 +79,7 @@ public class PostService {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .author(post.getAuthor().getName())
+                .author("author")
                 .createdAt(post.getCreatedAt().format(formatter))
                 .hashtags(hashtags)
                 .comments(comments)
@@ -93,8 +89,6 @@ public class PostService {
     // 글 작성
     @Transactional
     public PostDetailResponseDto savePost(PostUploadRequestDto dto) {
-        User user = jwtUtil.getCurrentUser();
-
         Post post = Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())

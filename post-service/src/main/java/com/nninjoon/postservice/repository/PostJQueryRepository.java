@@ -1,17 +1,17 @@
-package com.example.msablog.post.repository;
+package com.nninjoon.postservice.repository;
 
-import com.example.msablog.post.dto.ReadPostResponseDto;
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.nninjoon.postservice.dto.ReadPostResponseDto;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import static com.example.msablog.post.entity.QPost.post;
+import jakarta.persistence.EntityManager;
 
 @Repository
 public class PostJQueryRepository {

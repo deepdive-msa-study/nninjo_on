@@ -1,8 +1,9 @@
-package com.example.msablog.post.repository;
+package com.nninjoon.postservice.repository;
 
-import com.example.msablog.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.nninjoon.postservice.entity.Post;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {

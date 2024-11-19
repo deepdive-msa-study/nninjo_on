@@ -1,10 +1,11 @@
-package com.example.msablog.post.repository;
+package com.nninjoon.postservice.repository;
 
-import com.example.msablog.post.entity.Hashtag;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.example.msablog.post.entity.Hashtag;
 
 @Repository
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {

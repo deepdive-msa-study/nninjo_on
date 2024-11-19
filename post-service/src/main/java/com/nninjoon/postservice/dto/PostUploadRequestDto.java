@@ -1,11 +1,12 @@
-package com.example.msablog.post.dto;
+package com.nninjoon.postservice.dto;
+
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor

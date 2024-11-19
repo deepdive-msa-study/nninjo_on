@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.nninjoon'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2023.0.3")
+}
+
+dependencies {
+    // Spring Cloud Config 관련
+    // 중앙 설정 서버 역할을 하며, 외부 저장소나 파일 시스템에 저장된 설정 파일을 각 마이크로서비스에 제공
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+    // Spring Cloud 설정을 초기화 단계에서 로드하여 Config Server 등과의 통합을 지원
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+    // Spring Cloud Core 기능
+    // Spring Cloud의 핵심 기능을 포함하여 마이크로서비스 구성 및 관리를 쉽게 해줍니다.
+    implementation 'org.springframework.cloud:spring-cloud-starter'
+
+    // Spring AMQP 및 RabbitMQ 관련
+    // RabbitMQ와의 통신을 위한 메시지 송수신 기능을 지원
+    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+
+    // Spring Boot Actuator (모니터링 및 관리)
+    // 애플리케이션 모니터링 및 진단을 위한 엔드포인트를 제공
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // 테스트 관련 의존성
+    // Spring Boot 애플리케이션의 통합 테스트를 위한 지원
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // RabbitMQ와 관련된 테스트 기능을 제공하여, 메시지 큐 테스트를 지원
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+    // JUnit 5 기반 테스트 실행기를 제공
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
