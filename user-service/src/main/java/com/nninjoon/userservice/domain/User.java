@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -43,26 +45,16 @@ public class User implements UserDetails {
 	@Column(name = "role", nullable = false)
 	private String role;
 
-	@Column(name = "is_deleted", nullable = false)
+	@Column(name = "is_deleted")
 	private LocalDateTime isDeleted;
 
-	@Column(name = "created_at", nullable = false)
+	@CreationTimestamp
+	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", nullable = false)
+	@UpdateTimestamp
+	@Column(nullable = false)
 	private LocalDateTime updatedAt;
-
-	@PrePersist
-	protected void onCreate() {
-		isDeleted = null;
-		createdAt = LocalDateTime.now();
-		updatedAt = LocalDateTime.now();
-	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		updatedAt = LocalDateTime.now();
-	}
 
 	@Builder
 	public User(String name, String email, String password, String role) {

@@ -42,13 +42,13 @@ dependencies {
 
     // Spring Cloud Config 관련 (중앙화된 설정 관리)
     // Spring Cloud Config - 중앙 설정 서버와의 통합을 위한 라이브러리
-//    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
     // Spring Cloud Bootstrap - Spring Cloud 설정을 초기화 단계에서 로드하여 Config Server와 통합을 지원
-//    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 
     // Spring Cloud Bus 관련 (설정 변경 전파 및 이벤트 전파)
     // Spring Cloud Bus AMQP - Spring Cloud Bus를 통해 RabbitMQ로 설정 변경 및 이벤트를 전파
-//    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 
     // 보안 관련
     // Spring Security - 애플리케이션 보안을 위한 기본적인 인증과 권한 부여 기능 제공
@@ -84,6 +84,8 @@ dependencies {
 //    testImplementation 'org.springframework.amqp:spring-rabbit-test'
     // JUnit Platform Launcher - JUnit 5 기반 테스트 실행기
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 }
 
 dependencyManagement {

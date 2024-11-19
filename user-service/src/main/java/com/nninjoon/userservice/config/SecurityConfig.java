@@ -41,9 +41,11 @@ public class SecurityConfig {
 			))
 			.authorizeHttpRequests((authorizeRequests) ->
 					authorizeRequests
-						.requestMatchers("/user/register", "/user/login").permitAll()
+						.requestMatchers(SWAGGER_PATTERNS).permitAll()
+						.requestMatchers(STATIC_RESOURCES_PATTERNS).permitAll()
+						.requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
+						.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 						.anyRequest().authenticated()
-				// .anyRequest().authenticated()
 			)
 			.addFilterAfter(jwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
 			.httpBasic((httpBasic)-> httpBasic.disable())
@@ -56,6 +58,31 @@ public class SecurityConfig {
 			}))
 			.build();
 	}
+
+	private static final String[] SWAGGER_PATTERNS = {
+		"/swagger-ui/**",
+		"/actuator/**",
+		"/v3/api-docs/**",
+	};
+
+	private static final String[] STATIC_RESOURCES_PATTERNS = {
+		"/img/**",
+		"/css/**",
+		"/js/**"
+	};
+
+	private static final String[] PERMIT_ALL_PATTERNS = {
+		"/error",
+		"/favicon.ico",
+		"/index.html",
+		"/",
+		"/actuator/**"
+	};
+
+	private static final String[] PUBLIC_ENDPOINTS = {
+		"/signup",
+		"/login"
+	};
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

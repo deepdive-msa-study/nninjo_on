@@ -25,11 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class UserController {
 	private final UserService userService;
 
-	@PostMapping("/register")
+	@PostMapping("/signup")
 	public ResponseEntity<Void> create(@RequestBody RegisterDto request) {
 		userService.create(request);
 		return ResponseEntity.status(CREATED).build();

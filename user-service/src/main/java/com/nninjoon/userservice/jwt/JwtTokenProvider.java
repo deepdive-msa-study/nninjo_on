@@ -1,5 +1,7 @@
 package com.nninjoon.userservice.jwt;
 
+import static io.jsonwebtoken.SignatureAlgorithm.HS256;
+
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,25 +26,28 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j // 롬복을 이용하여 로깅을 위한 Logger 선언
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 	private final UserRepository userRepository;
-	private final Key key;
+	private final Environment env;
 
 	// @Autowired
 	// private RefreshTokenInfoRedisRepository refreshTokenInfoRepository; // RefreshToken 정보를 저장하기 위한 Repository
+	private String secretKey;
 
-	public JwtTokenProvider(UserRepository userRepository, @Value("${jwt.secret}") String secretKey) {
-		this.userRepository = userRepository;
-		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-		this.key = Keys.hmacShaKeyFor(keyBytes);
+	@PostConstruct
+	private void init() {
+		secretKey = env.getProperty("token.secret");
+		if (secretKey == null || secretKey.isEmpty()) {
+			throw new IllegalStateException("token.secret 환경 변수가 설정되지 않았습니다!");
+		}
 	}
 
 	public JwtTokenDto generateToken(Authentication authentication) {
@@ -68,7 +73,7 @@ public class JwtTokenProvider {
 			.claim("auth", authorities)
 			.setExpiration(new Date(now + 1800000)) // 토큰 만료 30분
 			.setIssuedAt(issuedAt)
-			.signWith(key, SignatureAlgorithm.HS256)
+			.signWith(HS256, secretKey)
 			.compact();
 
 		String refreshToken = Jwts.builder()
@@ -81,7 +86,7 @@ public class JwtTokenProvider {
 			.claim("add", "ref")
 			.setExpiration(new Date(now + 604800000))
 			.setIssuedAt(issuedAt)
-			.signWith(key, SignatureAlgorithm.HS256)
+			.signWith(HS256, secretKey)
 			.compact();
 
 		return JwtTokenDto.builder()
@@ -117,7 +122,7 @@ public class JwtTokenProvider {
 	// JWT 토큰의 유효성을 검증하는 메서드
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token); // 토큰 파싱하여 유효성 검증
+			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token); // 토큰 파싱하여 유효성 검증
 			return true; // 유효한 토큰일 경우 true 반환
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			log.error(e.getMessage());
@@ -168,7 +173,7 @@ public class JwtTokenProvider {
 	// JWT 토큰을 파싱하여 클레임 정보를 반환하는 메서드
 	private Claims parseClaims(String accessToken) {
 		try {
-			return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody(); // 토큰 파싱하여 클레임 정보 반환
+			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody(); // 토큰 파싱하여 클레임 정보 반환
 		} catch (ExpiredJwtException e) {
 			log.error("Expired Token");
 			return e.getClaims(); // 만료된 토큰의 경우 클레임 정보 반환
