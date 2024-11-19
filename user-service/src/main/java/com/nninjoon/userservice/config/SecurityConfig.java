@@ -5,19 +5,21 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import com.nninjoon.userservice.jwt.JwtAuthenticationFilter;
-import com.nninjoon.userservice.jwt.JwtTokenProvider;
+import com.nninjoon.userservice.filter.AuthenticationFilter;
+import com.nninjoon.userservice.filter.TokenAuthenticationFilter;
+import com.nninjoon.userservice.jwt.TokenProvider;
+import com.nninjoon.userservice.service.CustomUserDetailsService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final JwtTokenProvider jwtTokenProvider;
+	private final TokenProvider tokenProvider;
+	private final CustomUserDetailsService customUserDetailsService;
 
 	@Bean
 	public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -47,7 +50,8 @@ public class SecurityConfig {
 						.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 						.anyRequest().authenticated()
 			)
-			.addFilterAfter(jwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+			.addFilter(authenticationFilter())
+			.addFilterBefore(tokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
 			.httpBasic((httpBasic)-> httpBasic.disable())
 			.cors(cors -> cors.configurationSource(request -> {
 				CorsConfiguration config = new CorsConfiguration();
@@ -85,18 +89,28 @@ public class SecurityConfig {
 	};
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
+	public AuthenticationManager authenticationManager(
+		BCryptPasswordEncoder bCryptPasswordEncoder
+	) {
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+		authProvider.setUserDetailsService(customUserDetailsService);
+		authProvider.setPasswordEncoder(bCryptPasswordEncoder);
+		return new ProviderManager(authProvider);
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
-		log.info("Init JwtAuthentication Filter");
-		return new JwtAuthenticationFilter(jwtTokenProvider);
+	public TokenAuthenticationFilter tokenAuthenticationFilter(TokenProvider tokenProvider) {
+		return new TokenAuthenticationFilter(tokenProvider);
 	}
+
+	public AuthenticationFilter authenticationFilter() {
+		AuthenticationFilter authenticationFilter = new AuthenticationFilter(tokenProvider);
+		authenticationFilter.setAuthenticationManager(authenticationManager(bCryptPasswordEncoder()));
+		return authenticationFilter;
+	}
+
 }

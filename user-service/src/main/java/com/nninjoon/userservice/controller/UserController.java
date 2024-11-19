@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nninjoon.userservice.dto.JwtTokenDto;
-import com.nninjoon.userservice.dto.LoginDto;
+import com.nninjoon.userservice.dto.RequestLogin;
 import com.nninjoon.userservice.dto.UserProfileResponse;
 import com.nninjoon.userservice.dto.RegisterDto;
 import com.nninjoon.userservice.dto.UpdateUserDto;
@@ -34,10 +33,10 @@ public class UserController {
 		return ResponseEntity.status(CREATED).build();
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<JwtTokenDto> login(@RequestBody LoginDto request) {
-		return ResponseEntity.ok(userService.login(request));
-	}
+	// @PostMapping("/login")
+	// public ResponseEntity<JwtTokenDto> login(@RequestBody RequestLogin request) {
+	// 	return ResponseEntity.ok(userService.login(request));
+	// }
 
 	@GetMapping("/mypage")
 	public ResponseEntity<UserProfileResponse> getMyProfile() {

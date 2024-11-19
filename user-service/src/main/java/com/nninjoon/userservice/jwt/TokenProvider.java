@@ -2,7 +2,6 @@ package com.nninjoon.userservice.jwt;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j // 롬복을 이용하여 로깅을 위한 Logger 선언
 @Component
 @RequiredArgsConstructor
-public class JwtTokenProvider {
+public class TokenProvider {
 	private final UserRepository userRepository;
 	private final Environment env;
 
@@ -121,21 +120,25 @@ public class JwtTokenProvider {
 
 	// JWT 토큰의 유효성을 검증하는 메서드
 	public boolean validateToken(String token) {
+		if (token == null || token.trim().isEmpty()) {
+			return false; // 유효하지 않은 토큰으로 처리
+		}
+
 		try {
 			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token); // 토큰 파싱하여 유효성 검증
 			return true; // 유효한 토큰일 경우 true 반환
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			log.error(e.getMessage());
-			return false; // 토큰이 잘못된 경우 예외 처리
+			log.error("Invalid JWT Token: {}", e.getMessage()); // 잘못된 토큰
+			return false;
 		} catch (ExpiredJwtException e) {
-			log.error(e.getMessage());
-			return false; // 토큰이 만료된 경우 예외 처리
+			// 만료된 토큰은 로그를 남기지 않음
+			return false;
 		} catch (UnsupportedJwtException | IllegalArgumentException e) {
-			log.error(e.getMessage());
-			return false; // 지원하지 않는 토큰이거나 잘못된 형식의 경우 예외 처리
-		} catch (Exception e){
-			log.error(e.getMessage());
-			return false; // 그 외 예외 처리
+			log.error("Unsupported or malformed JWT Token: {}", e.getMessage()); // 지원하지 않는 토큰이나 잘못된 형식
+			return false;
+		} catch (Exception e) {
+			// 그 외 예외는 로그를 남기지 않음
+			return false;
 		}
 	}
 
