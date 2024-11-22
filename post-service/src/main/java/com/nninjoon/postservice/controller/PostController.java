@@ -24,31 +24,31 @@ public class PostController {
 		return ResponseDto.success(postService.findAll(pageable));
 	}
 
-	@GetMapping("/post/{postId}")
+	@GetMapping("/post")
 	public ResponseDto findById(@PathVariable Long postId) {
 		return ResponseDto.success(postService.findById(postId));
 	}
 
-	@PostMapping("/{userId}/post")
-	public ResponseDto writePost(@RequestBody PostUploadRequestDto dto, @PathVariable Long userId) {
+	@PostMapping("/post")
+	public ResponseDto writePost(@RequestBody PostUploadRequestDto dto, @RequestHeader("X-User-Id") String userId) {
 		return ResponseDto.success(postService.savePost(dto, userId));
 	}
 
 
-	@GetMapping("{userId}/post/{postId}")
-	public ResponseDto updatePost(@PathVariable Long postId) {
+	@GetMapping("/post/{postId}")
+	public ResponseDto updatePost(@PathVariable Long postId, @RequestHeader("X-User-Id") String userId) {
 		return ResponseDto.success(postService.findById(postId));
 	}
 
-	@PatchMapping("{userId}/post/{postId}")
+	@PatchMapping("/post/{postId}")
 	public ResponseDto updatePost(@PathVariable Long postId,
 		@RequestBody PostUploadRequestDto dto) {
 		return ResponseDto.success(postService.updatePost(dto, postId));
 	}
 
-	@DeleteMapping("{userId}/post/{postId}")
-	public ResponseDto deletePost(@PathVariable Long postId) {
-		postService.deletePost(id);
+	@DeleteMapping("/post/{postId}")
+	public ResponseDto deletePost(@PathVariable Long postId, @RequestHeader) {
+		postService.deletePost(postId);
 		return ResponseDto.success();
 	}
 

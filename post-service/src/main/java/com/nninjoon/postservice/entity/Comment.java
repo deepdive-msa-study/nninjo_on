@@ -33,9 +33,7 @@ public class Comment {
     @Setter
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id")
-    private User author;
+    private String userId;
 
     @ManyToOne
     @JoinColumn(name = "post_id")

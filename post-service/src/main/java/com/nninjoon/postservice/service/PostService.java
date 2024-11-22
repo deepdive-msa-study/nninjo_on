@@ -154,5 +154,4 @@ public class PostService {
         authenticateByUsingJWT(id);
         postRepository.deleteById(id);
     }
-
 }

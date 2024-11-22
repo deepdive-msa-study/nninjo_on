@@ -4,15 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.msablog.user.entity.User;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,22 +29,18 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     private String title;
 
-    @Setter
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id")
-    private User author;
+    private String userId;
 
-    @Setter
     private int hits;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Setter
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Setter
@@ -55,4 +50,6 @@ public class Post {
     @Setter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
+
 }
