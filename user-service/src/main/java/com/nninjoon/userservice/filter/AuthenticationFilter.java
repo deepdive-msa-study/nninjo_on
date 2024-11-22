@@ -53,7 +53,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		FilterChain chain,
 		Authentication auth
 	) {
-		String userId = ((User) auth.getPrincipal()).getUsername();
 		String accessToken = tokenProvider.generateToken(auth).getAccessToken();
 
 		response.addHeader("Authorization", "Bearer " + accessToken);

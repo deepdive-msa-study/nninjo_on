@@ -2,30 +2,23 @@ package com.nninjoon.userservice.jwt;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.nninjoon.userservice.domain.User;
 import com.nninjoon.userservice.dto.JwtTokenDto;
-import com.nninjoon.userservice.repository.UserRepository;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,19 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
-	private final UserRepository userRepository;
 	private final Environment env;
 
 	// @Autowired
 	// private RefreshTokenInfoRedisRepository refreshTokenInfoRepository; // RefreshToken 정보를 저장하기 위한 Repository
-	private String secretKey;
+	private SecretKey secretKey;
 
 	@PostConstruct
 	private void init() {
-		secretKey = env.getProperty("token.secret");
-		if (secretKey == null || secretKey.isEmpty()) {
+		String key = env.getProperty("jwt.secret");
+
+		if (key == null || key.isEmpty()) {
 			throw new IllegalStateException("token.secret 환경 변수가 설정되지 않았습니다!");
 		}
+		secretKey = Keys.hmacShaKeyFor(key.getBytes());
 	}
 
 	public JwtTokenDto generateToken(Authentication authentication) {
@@ -68,11 +62,11 @@ public class TokenProvider {
 			.setSubject("accessToken")
 			.claim("iss", "off")
 			.claim("email", authentication.getName())
-			.claim("id", userId)
+			.claim("userId", userId)
 			.claim("auth", authorities)
 			.setExpiration(new Date(now + 1800000)) // 토큰 만료 30분
 			.setIssuedAt(issuedAt)
-			.signWith(HS256, secretKey)
+			.signWith(secretKey, HS256)
 			.compact();
 
 		String refreshToken = Jwts.builder()
@@ -85,7 +79,7 @@ public class TokenProvider {
 			.claim("add", "ref")
 			.setExpiration(new Date(now + 604800000))
 			.setIssuedAt(issuedAt)
-			.signWith(HS256, secretKey)
+			.signWith(secretKey, HS256)
 			.compact();
 
 		return JwtTokenDto.builder()
@@ -93,53 +87,6 @@ public class TokenProvider {
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.build();
-	}
-
-	public Authentication getAuthentication(String token) {
-		Claims claims = parseClaims(token);
-
-		if (claims.get("auth") == null) {
-			log.error("No Authentication");
-			throw new RuntimeException("No Authentication");
-		}
-
-		Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
-			.map(SimpleGrantedAuthority::new)
-			.collect(Collectors.toList());
-
-		String email = (String) claims.get("email");
-		User user = userRepository.findByEmail(email);
-
-		if (user == null) {
-			log.error("User Not Found");
-			throw new UsernameNotFoundException("User Not Found");
-		}
-
-		return new UsernamePasswordAuthenticationToken(user, token, authorities);
-	}
-
-	// JWT 토큰의 유효성을 검증하는 메서드
-	public boolean validateToken(String token) {
-		if (token == null || token.trim().isEmpty()) {
-			return false; // 유효하지 않은 토큰으로 처리
-		}
-
-		try {
-			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token); // 토큰 파싱하여 유효성 검증
-			return true; // 유효한 토큰일 경우 true 반환
-		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			log.error("Invalid JWT Token: {}", e.getMessage()); // 잘못된 토큰
-			return false;
-		} catch (ExpiredJwtException e) {
-			// 만료된 토큰은 로그를 남기지 않음
-			return false;
-		} catch (UnsupportedJwtException | IllegalArgumentException e) {
-			log.error("Unsupported or malformed JWT Token: {}", e.getMessage()); // 지원하지 않는 토큰이나 잘못된 형식
-			return false;
-		} catch (Exception e) {
-			// 그 외 예외는 로그를 남기지 않음
-			return false;
-		}
 	}
 
 	// // RefreshToken을 이용하여 AccessToken을 재발급하는 메서드
@@ -173,15 +120,7 @@ public class TokenProvider {
 	//     }
 	// }
 
-	// JWT 토큰을 파싱하여 클레임 정보를 반환하는 메서드
-	private Claims parseClaims(String accessToken) {
-		try {
-			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody(); // 토큰 파싱하여 클레임 정보 반환
-		} catch (ExpiredJwtException e) {
-			log.error("Expired Token");
-			return e.getClaims(); // 만료된 토큰의 경우 클레임 정보 반환
-		}
-	}
+
 
 	// JWT 토큰의 Header 정보를 생성하는 메서드
 	private static Map<String, Object> createHeaders() {

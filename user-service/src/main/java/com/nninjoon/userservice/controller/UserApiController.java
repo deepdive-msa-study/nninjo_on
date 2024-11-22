@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nninjoon.userservice.dto.JwtTokenDto;
-import com.nninjoon.userservice.dto.RequestLogin;
 import com.nninjoon.userservice.dto.UserProfileResponse;
 import com.nninjoon.userservice.dto.RegisterDto;
 import com.nninjoon.userservice.dto.UpdateUserDto;
@@ -24,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class UserApiController {
 	private final UserService userService;
 
 	@PostMapping("/signup")

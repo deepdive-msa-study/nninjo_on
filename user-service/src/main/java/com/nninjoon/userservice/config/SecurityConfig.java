@@ -13,11 +13,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.nninjoon.userservice.filter.AuthenticationFilter;
-import com.nninjoon.userservice.filter.TokenAuthenticationFilter;
 import com.nninjoon.userservice.jwt.TokenProvider;
 import com.nninjoon.userservice.service.CustomUserDetailsService;
 
@@ -51,7 +49,6 @@ public class SecurityConfig {
 						.anyRequest().authenticated()
 			)
 			.addFilter(authenticationFilter())
-			.addFilterBefore(tokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
 			.httpBasic((httpBasic)-> httpBasic.disable())
 			.cors(cors -> cors.configurationSource(request -> {
 				CorsConfiguration config = new CorsConfiguration();
@@ -103,9 +100,6 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	public TokenAuthenticationFilter tokenAuthenticationFilter(TokenProvider tokenProvider) {
-		return new TokenAuthenticationFilter(tokenProvider);
-	}
 
 	public AuthenticationFilter authenticationFilter() {
 		AuthenticationFilter authenticationFilter = new AuthenticationFilter(tokenProvider);

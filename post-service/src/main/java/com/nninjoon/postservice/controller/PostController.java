@@ -1,10 +1,11 @@
 package com.nninjoon.postservice.controller;
 
-import com.example.msablog.post.dto.CommentUploadRequestDto;
-import com.example.msablog.post.dto.PostUploadRequestDto;
-import com.example.msablog.post.dto.ResponseDto;
-import com.example.msablog.post.service.CommentService;
-import com.example.msablog.post.service.PostService;
+import com.nninjoon.postservice.dto.CommentUploadRequestDto;
+import com.nninjoon.postservice.dto.PostUploadRequestDto;
+import com.nninjoon.postservice.dto.ResponseDto;
+import com.nninjoon.postservice.service.CommentService;
+import com.nninjoon.postservice.service.PostService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts")
 public class PostController {
 	private final PostService postService;
 	private final CommentService commentService;
@@ -24,36 +24,36 @@ public class PostController {
 		return ResponseDto.success(postService.findAll(pageable));
 	}
 
-	@GetMapping("/{id}")
-	public ResponseDto findById(@PathVariable Long id) {
-		return ResponseDto.success(postService.findById(id));
+	@GetMapping("/post/{postId}")
+	public ResponseDto findById(@PathVariable Long postId) {
+		return ResponseDto.success(postService.findById(postId));
 	}
 
-	@PostMapping("/upload")
-	public ResponseDto writePost(@RequestBody PostUploadRequestDto dto) {
-		return ResponseDto.success(postService.savePost(dto));
+	@PostMapping("/{userId}/post")
+	public ResponseDto writePost(@RequestBody PostUploadRequestDto dto, @PathVariable Long userId) {
+		return ResponseDto.success(postService.savePost(dto, userId));
 	}
 
 
-	@GetMapping("/update/{id}")
-	public ResponseDto updatePostForm(@PathVariable Long id) {
-		return ResponseDto.success(postService.findById(id));
+	@GetMapping("{userId}/post/{postId}")
+	public ResponseDto updatePost(@PathVariable Long postId) {
+		return ResponseDto.success(postService.findById(postId));
 	}
 
-	@PostMapping("/update/{id}")
-	public ResponseDto updatePost(@PathVariable Long id,
+	@PatchMapping("{userId}/post/{postId}")
+	public ResponseDto updatePost(@PathVariable Long postId,
 		@RequestBody PostUploadRequestDto dto) {
-		return ResponseDto.success(postService.updatePost(dto, id));
+		return ResponseDto.success(postService.updatePost(dto, postId));
 	}
 
-	@GetMapping("/delete/{id}")
-	public ResponseDto deletePost(@PathVariable Long id) {
+	@DeleteMapping("{userId}/post/{postId}")
+	public ResponseDto deletePost(@PathVariable Long postId) {
 		postService.deletePost(id);
 		return ResponseDto.success();
 	}
 
 	// 댓글 작성
-	@PostMapping("/{postId}")
+	@PostMapping("{userId}/comment/{postId}")
 	public ResponseDto writeComment(@PathVariable Long postId,
 		@RequestBody CommentUploadRequestDto commentDto) {
 		return ResponseDto.success(commentService.writeComment(postId, commentDto));
@@ -61,8 +61,8 @@ public class PostController {
 
 
 	// 댓글 수정
-	@PostMapping("/{postId}/{commentId}/update")
-	public ResponseDto updateComment(@PathVariable Long postId,
+	@PatchMapping("/{userId}/comment/{commentId}}")
+	public ResponseDto updateComment(@PathVariable Long userId,
 		@PathVariable Long commentId,
 		@RequestBody CommentUploadRequestDto commentDto) {
 		return ResponseDto.success(commentService.update(commentId, commentDto));
@@ -70,8 +70,8 @@ public class PostController {
 
 
 	// 댓글 삭제
-	@GetMapping("/{postId}/{commentId}/delete")
-	public ResponseDto deleteComment(@PathVariable Long postId,
+	@DeleteMapping("/{userId}/comment/{commentId}}")
+	public ResponseDto deleteComment(@PathVariable Long userId,
 		@PathVariable Long commentId) {
 		commentService.delete(commentId);
 		return ResponseDto.success();

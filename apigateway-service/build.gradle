@@ -47,12 +47,19 @@ dependencies {
     // Lombok (코드 간소화)
     // Lombok - 반복적인 코드를 줄이기 위해 Getter, Setter, Constructor 등을 자동 생성
     implementation 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // 개발 환경 전용 의존성
     // DevTools - 개발 시 자동 재시작, 캐시 비우기 등 개발자 편의 기능 제공
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // JWT (JSON Web Token) - JWT를 사용한 토큰 기반 인증 지원
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // 테스트 관련 의존성
     // Spring Boot Test - 통합 테스트 및 Mocking 기능 제공
