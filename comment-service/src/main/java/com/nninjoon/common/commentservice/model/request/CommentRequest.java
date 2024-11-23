@@ -1,4 +1,4 @@
-package com.nninjoon.common.commentservice.model;
+package com.nninjoon.common.commentservice.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

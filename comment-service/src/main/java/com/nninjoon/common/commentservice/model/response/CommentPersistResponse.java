@@ -1,4 +1,4 @@
-package com.nninjoon.common.commentservice.model;
+package com.nninjoon.common.commentservice.model.response;
 
 import com.nninjoon.common.commentservice.domain.Comment;
 

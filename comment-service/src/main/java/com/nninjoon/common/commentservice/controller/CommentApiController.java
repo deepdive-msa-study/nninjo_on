@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nninjoon.common.commentservice.model.CommentRequest;
-import com.nninjoon.common.commentservice.model.CommentPersistResponse;
+import com.nninjoon.common.commentservice.model.request.CommentRequest;
+import com.nninjoon.common.commentservice.model.response.CommentPersistResponse;
 import com.nninjoon.common.commentservice.service.CommentService;
 
 import lombok.RequiredArgsConstructor;

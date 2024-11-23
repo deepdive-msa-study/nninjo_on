@@ -1,4 +1,4 @@
-package com.nninjoon.postservice.client;
+package com.nninjoon.userservice.client.comment;
 
 import java.util.List;
 
@@ -6,10 +6,10 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.nninjoon.postservice.client.model.CommentResponse;
+import com.nninjoon.userservice.client.comment.model.CommentResponse;
 
 @FeignClient("comment-service")
 public interface CommentServiceClient {
-	@GetMapping("/internal/comments/posts/{postId}")
-	List<CommentResponse> getComments(@PathVariable Long postId);
+	@GetMapping("/internal/comments/users/{userId}")
+	List<CommentResponse> getComments(@PathVariable String userId);
 }

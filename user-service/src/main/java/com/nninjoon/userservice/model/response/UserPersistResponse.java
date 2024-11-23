@@ -1,4 +1,4 @@
-package com.nninjoon.userservice.dto.response;
+package com.nninjoon.userservice.model.response;
 
 import com.nninjoon.userservice.domain.User;
 

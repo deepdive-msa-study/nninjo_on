@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nninjoon.userservice.dto.request.UserCreateRequest;
+import com.nninjoon.userservice.model.request.UserCreateRequest;
 import com.nninjoon.userservice.service.UserService;
 
 import lombok.RequiredArgsConstructor;

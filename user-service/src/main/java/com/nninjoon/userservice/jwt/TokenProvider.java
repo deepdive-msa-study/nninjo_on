@@ -5,17 +5,15 @@ import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.dto.response.JwtTokenDto;
+import com.nninjoon.userservice.model.response.JwtTokenDto;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

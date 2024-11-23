@@ -1,11 +1,11 @@
-package com.nninjoon.userservice.dto.response;
+package com.nninjoon.userservice.model.response;
 
 
 import java.util.List;
 
-import com.nninjoon.userservice.client.model.comment.CommentResponse;
+import com.nninjoon.userservice.client.comment.model.CommentResponse;
 import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.client.model.post.PostResponse;
+import com.nninjoon.userservice.client.post.model.PostResponse;
 
 import lombok.Builder;
 

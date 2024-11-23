@@ -10,13 +10,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nninjoon.userservice.client.PostServiceClient;
+import com.nninjoon.userservice.client.comment.CommentServiceClient;
+import com.nninjoon.userservice.client.post.PostServiceClient;
+import com.nninjoon.userservice.client.comment.model.CommentResponse;
 import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.dto.post.PostResponse;
-import com.nninjoon.userservice.dto.response.UserResponse;
-import com.nninjoon.userservice.dto.request.UserCreateRequest;
-import com.nninjoon.userservice.dto.request.UserUpdateRequest;
-import com.nninjoon.userservice.dto.response.UserPersistResponse;
+import com.nninjoon.userservice.client.post.model.PostResponse;
+import com.nninjoon.userservice.model.response.UserResponse;
+import com.nninjoon.userservice.model.request.UserCreateRequest;
+import com.nninjoon.userservice.model.request.UserUpdateRequest;
+import com.nninjoon.userservice.model.response.UserPersistResponse;
 import com.nninjoon.userservice.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final CircuitBreakerFactory circuitBreakerFactory;
 	private final PostServiceClient postServiceClient;
+	private final CommentServiceClient commentServiceClient;
 
 
 	@Transactional
@@ -57,9 +60,18 @@ public class UserService {
 
 		CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 		List<PostResponse> posts = circuitBreaker.run(() -> postServiceClient.getPosts(userId),
-			throwable -> new ArrayList<>());
+			throwable -> {
+				log.error("Failed to fetch posts for userId: {}", userId, throwable);
+				return new ArrayList<>();
+			});
 
-		return UserResponse.of(user.getEmail(), user.getName(), posts);
+		List<CommentResponse> comments = circuitBreaker.run(() -> commentServiceClient.getComments(userId),
+			throwable -> {
+				log.error("Failed to fetch comments for userId: {}", userId, throwable);
+				return new ArrayList<>();
+			});
+
+		return UserResponse.of(user.getEmail(), user.getName(), posts, comments);
 	}
 
 	@Transactional

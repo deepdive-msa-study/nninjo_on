@@ -3,36 +3,40 @@ package com.nninjoon.postservice.service;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nninjoon.postservice.dto.CommentResponse;
+import com.nninjoon.postservice.client.CommentServiceClient;
+import com.nninjoon.postservice.client.model.CommentResponse;
 import com.nninjoon.postservice.dto.PostDetailResponse;
 import com.nninjoon.postservice.dto.PostPersistResponse;
 import com.nninjoon.postservice.dto.PostUploadRequest;
 import com.nninjoon.postservice.dto.PostResponse;
-import com.nninjoon.postservice.entity.Comment;
-import com.nninjoon.postservice.entity.Hashtag;
 import com.nninjoon.postservice.entity.Post;
-import com.nninjoon.postservice.entity.PostHashtag;
 import com.nninjoon.postservice.repository.HashtagRepository;
 import com.nninjoon.postservice.repository.PostHashtagRepository;
 import com.nninjoon.postservice.repository.PostJQueryRepository;
 import com.nninjoon.postservice.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final PostJQueryRepository postJQueryRepository;
+    private final CommentServiceClient commentServiceClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
+
     @Transactional(readOnly = true)
     public Page<PostResponse> findAll(Pageable pageable) {
         return postJQueryRepository.findAll(pageable);
@@ -64,25 +68,25 @@ public class PostService {
     private PostDetailResponse postToPostDetailDto(Post post) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        List<String> hashtags = new ArrayList<>();
+        // List<String> hashtags = new ArrayList<>();
         // for (PostHashtag postHashtag : post.getPostHashtags()) {
         //     hashtags.add(postHashtag.getHashtag().getName());
         // }
-        //
-        // List<CommentResponse> comments = new ArrayList<>();
-        // for (Comment comment : post.getComments()) {
-        //     comments.add(CommentResponse.from(comment));
-        // }
 
-        return PostDetailResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .author("author")
-                .createdAt(post.getCreatedAt().format(formatter))
-                // .hashtags(hashtags)
-                // .comments(comments)
-                .build();
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        List<CommentResponse> comments = circuitBreaker.run(() ->commentServiceClient.getComments(post.getId()),
+            throwable -> {
+                log.error("Failed to fetch comments for postId: {}", post.getId(), throwable);
+                return new ArrayList<>();
+            });
+
+        return PostDetailResponse.of(
+            post.getTitle(),
+            post.getContent(),
+            post.getUserId(),
+            post.getCreatedAt().format(formatter),
+            comments
+        );
     }
 
     // 글 작성

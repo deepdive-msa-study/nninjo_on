@@ -1,4 +1,4 @@
-package com.nninjoon.userservice.dto.request;
+package com.nninjoon.userservice.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

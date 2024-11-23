@@ -1,15 +1,14 @@
 package com.nninjoon.common.commentservice.service;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nninjoon.common.commentservice.domain.Comment;
-import com.nninjoon.common.commentservice.model.CommentRequest;
-import com.nninjoon.common.commentservice.model.CommentPersistResponse;
-import com.nninjoon.common.commentservice.model.CommentResponse;
+import com.nninjoon.common.commentservice.model.request.CommentRequest;
+import com.nninjoon.common.commentservice.model.response.CommentPersistResponse;
+import com.nninjoon.common.commentservice.model.response.CommentResponse;
 import com.nninjoon.common.commentservice.repository.CommentRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.nninjoon.common.commentservice.model;
+package com.nninjoon.common.commentservice.model.response;
 
 import java.time.format.DateTimeFormatter;
 

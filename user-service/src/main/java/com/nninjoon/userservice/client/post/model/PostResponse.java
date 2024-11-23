@@ -1,4 +1,4 @@
-package com.nninjoon.userservice.client.model.post;
+package com.nninjoon.userservice.client.post.model;
 
 import lombok.Builder;
 

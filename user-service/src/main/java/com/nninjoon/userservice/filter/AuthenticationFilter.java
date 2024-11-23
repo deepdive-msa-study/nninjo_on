@@ -9,7 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nninjoon.userservice.dto.request.UserLoginRequest;
+import com.nninjoon.userservice.model.request.UserLoginRequest;
 import com.nninjoon.userservice.jwt.TokenProvider;
 
 import jakarta.servlet.FilterChain;

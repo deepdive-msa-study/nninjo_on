@@ -1,4 +1,4 @@
-package com.nninjoon.userservice.client.model;
+package com.nninjoon.userservice.client.comment.model;
 
 public record CommentResponse(
 	String userId,
