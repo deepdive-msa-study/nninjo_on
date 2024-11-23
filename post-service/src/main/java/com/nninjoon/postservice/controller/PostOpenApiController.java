@@ -15,18 +15,18 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/open-api")
+@RequestMapping("/open-api/posts")
 public class PostOpenApiController {
 	private final PostService postService;
 
-	@GetMapping("/list")
+	@GetMapping
 	public ResponseDto findAll(@RequestParam(value = "page", defaultValue = "1") int page,
 		@RequestParam(value = "size", defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page - 1, size);
 		return ResponseDto.success(postService.findAll(pageable));
 	}
 
-	@GetMapping("/post")
+	@GetMapping("/{postId}")
 	public ResponseDto findById(@PathVariable Long postId) {
 		return ResponseDto.success(postService.findById(postId));
 	}

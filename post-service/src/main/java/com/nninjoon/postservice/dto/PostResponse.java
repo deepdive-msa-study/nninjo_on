@@ -1,11 +1,8 @@
 package com.nninjoon.postservice.dto;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nninjoon.postservice.entity.Post;
 
 import lombok.Builder;
-import lombok.Data;
 
 @Builder
 public record PostResponse(

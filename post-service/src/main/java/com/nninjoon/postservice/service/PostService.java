@@ -39,6 +39,15 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    public List<PostResponse> findAllByUserId(String userId) {
+        List<Post> getPosts = postRepository.findByUserId(userId);
+
+        return getPosts.stream()
+            .map(PostResponse::from)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
     public PostDetailResponse findById(Long postId) {
         Post post = getPost(postId);
         return postToPostDetailDto(post);

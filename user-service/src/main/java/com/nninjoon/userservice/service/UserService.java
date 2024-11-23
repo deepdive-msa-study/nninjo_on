@@ -1,12 +1,18 @@
 package com.nninjoon.userservice.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nninjoon.userservice.client.PostServiceClient;
 import com.nninjoon.userservice.domain.User;
+import com.nninjoon.userservice.dto.post.PostResponse;
 import com.nninjoon.userservice.dto.response.UserResponse;
 import com.nninjoon.userservice.dto.request.UserCreateRequest;
 import com.nninjoon.userservice.dto.request.UserUpdateRequest;
@@ -22,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final CircuitBreakerFactory circuitBreakerFactory;
+	private final PostServiceClient postServiceClient;
+
 
 	@Transactional
 	public UserPersistResponse create(UserCreateRequest request) {
@@ -45,7 +54,12 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public UserResponse getMyProfile(String userId) {
 		User user = getUserByUserId(userId);
-		return UserResponse.from(user);
+
+		CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+		List<PostResponse> posts = circuitBreaker.run(() -> postServiceClient.getPosts(userId),
+			throwable -> new ArrayList<>());
+
+		return UserResponse.of(user.getEmail(), user.getName(), posts);
 	}
 
 	@Transactional

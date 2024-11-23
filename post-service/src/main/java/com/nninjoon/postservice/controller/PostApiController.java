@@ -1,8 +1,12 @@
 package com.nninjoon.postservice.controller;
 
+import java.util.List;
+
 import com.nninjoon.postservice.dto.CommentUploadRequest;
+import com.nninjoon.postservice.dto.PostResponse;
 import com.nninjoon.postservice.dto.PostUploadRequest;
 import com.nninjoon.postservice.dto.ResponseDto;
+import com.nninjoon.postservice.entity.Post;
 import com.nninjoon.postservice.service.CommentService;
 import com.nninjoon.postservice.service.PostService;
 
@@ -22,12 +26,15 @@ public class PostApiController {
 		return ResponseDto.success(postService.savePost(dto, userId));
 	}
 
-
-	@GetMapping("/post/{postId}")
+	@GetMapping("/post/update/{postId}")
 	public ResponseDto updatePost(@PathVariable Long postId, @RequestHeader("X-User-Id") String userId) {
 		return ResponseDto.success(postService.findById(postId, userId));
 	}
 
+	@GetMapping("/post/me")
+	public ResponseEntity<List<PostResponse>> getMyPosts(@RequestHeader("X-User-Id") String userId) {
+		return ResponseEntity.ok(postService.findAllByUserId(userId));
+	}
 	@PatchMapping("/post/{postId}")
 	public ResponseDto updatePost(@PathVariable Long postId,
 		@RequestBody PostUploadRequest request, @RequestHeader("X-User-Id") String userId) {
