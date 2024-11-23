@@ -1,4 +1,4 @@
-package com.nninjoon.postservice.entity;
+package com.nninjoon.common.commentservice.domain;
 
 import java.time.LocalDateTime;
 
@@ -45,6 +45,7 @@ public class Comment {
         return Comment.builder()
             .content(content)
             .userId(userId)
+            .postId(postId)
             .build();
     }
 

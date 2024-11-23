@@ -3,8 +3,9 @@ package com.nninjoon.userservice.dto.response;
 
 import java.util.List;
 
+import com.nninjoon.userservice.client.model.comment.CommentResponse;
 import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.dto.post.PostResponse;
+import com.nninjoon.userservice.client.model.post.PostResponse;
 
 import lombok.Builder;
 
@@ -13,7 +14,8 @@ public record UserResponse(
 	String email,
 	String name,
 
-	List<PostResponse> posts
+	List<PostResponse> posts,
+	List<CommentResponse> comments
 ) {
 	public static UserResponse from(User user) {
 		return UserResponse.builder()
@@ -22,11 +24,12 @@ public record UserResponse(
 			.build();
 	}
 
-	public static UserResponse of(String email, String name, List<PostResponse> posts) {
+	public static UserResponse of(String email, String name, List<PostResponse> posts, List<CommentResponse> comments) {
 		return UserResponse.builder()
 			.email(email)
 			.name(name)
 			.posts(posts)
+			.comments(comments)
 			.build();
 	}
 }

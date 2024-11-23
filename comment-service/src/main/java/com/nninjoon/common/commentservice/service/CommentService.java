@@ -1,16 +1,16 @@
-package com.nninjoon.postservice.service;
+package com.nninjoon.common.commentservice.service;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nninjoon.postservice.dto.CommentPersistResponse;
-import com.nninjoon.postservice.dto.CommentUploadRequest;
-import com.nninjoon.postservice.entity.Comment;
-import com.nninjoon.postservice.entity.Post;
-import com.nninjoon.postservice.repository.CommentRepository;
-import com.nninjoon.postservice.repository.PostRepository;
+import com.nninjoon.common.commentservice.domain.Comment;
+import com.nninjoon.common.commentservice.model.CommentRequest;
+import com.nninjoon.common.commentservice.model.CommentPersistResponse;
+import com.nninjoon.common.commentservice.model.CommentResponse;
+import com.nninjoon.common.commentservice.repository.CommentRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,10 +18,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
 
     @Transactional
-    public CommentPersistResponse writeComment(Long postId, CommentUploadRequest request, String userId) {
+    public CommentPersistResponse create(Long postId, CommentRequest request, String userId) {
         Comment comment = Comment.create(request.content(), userId, postId);
         commentRepository.save(comment);
 
@@ -29,7 +28,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void update(Long commentId, CommentUploadRequest request, String userId) {
+    public void update(Long commentId, CommentRequest request, String userId) {
         Comment comment = validateCommentAuthor(userId, commentId);
         comment.update(request.content());
     }
@@ -40,6 +39,21 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getComments(Long postId) {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        return comments.stream()
+            .map(CommentResponse::from)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsByUserId(String userId) {
+        List<Comment> comments = commentRepository.findByUserId(userId);
+        return comments.stream()
+            .map(CommentResponse::from)
+            .toList();
+    }
 
     private Comment validateCommentAuthor(String userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(

@@ -1,6 +1,6 @@
-package com.nninjoon.postservice.dto;
+package com.nninjoon.common.commentservice.model;
 
-import com.nninjoon.postservice.entity.Comment;
+import com.nninjoon.common.commentservice.domain.Comment;
 
 import lombok.Builder;
 
