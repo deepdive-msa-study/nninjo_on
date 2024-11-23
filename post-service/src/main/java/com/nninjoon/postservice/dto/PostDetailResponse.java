@@ -1,24 +1,24 @@
 package com.nninjoon.postservice.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ReadPostResponseDto {
+@Builder
+public class PostDetailResponse {
     private Long id;
     private String title;
     private String content;
     private String author;
-
-    public ReadPostResponseDto(Long id, String title, String content, String author) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.author = author;
-    }
+    private String createdAt;
+    private List<String> hashtags;
+    private List<CommentResponse> comments;
 }

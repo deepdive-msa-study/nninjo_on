@@ -1,7 +1,6 @@
 package com.nninjoon.userservice.filter;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,8 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.dto.RequestLogin;
+import com.nninjoon.userservice.dto.request.UserLoginRequest;
 import com.nninjoon.userservice.jwt.TokenProvider;
 
 import jakarta.servlet.FilterChain;
@@ -33,12 +31,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		HttpServletResponse response
 	) throws AuthenticationException {
 		try{
-			RequestLogin creds = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
+			UserLoginRequest req = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequest.class);
 
 			return getAuthenticationManager().authenticate(
 				new UsernamePasswordAuthenticationToken(
-					creds.getEmail(),
-					creds.getPassword(), new ArrayList<>()
+					req.email(),
+					req.password(), new ArrayList<>()
 				)
 			);
 		} catch (IOException e) {
@@ -53,7 +51,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		FilterChain chain,
 		Authentication auth
 	) {
-		String accessToken = tokenProvider.generateToken(auth).getAccessToken();
+		String accessToken = tokenProvider.generateToken(auth).accessToken();
 
 		response.addHeader("Authorization", "Bearer " + accessToken);
 	}

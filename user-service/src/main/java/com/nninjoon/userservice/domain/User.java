@@ -14,14 +14,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -33,16 +30,19 @@ public class User implements UserDetails {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "name", nullable = false)
+	@Column(nullable = false, updatable = false)
+	private String userId;
+
+	@Column(nullable = false)
 	private String name;
 
-	@Column(name = "email", nullable = false)
+	@Column(nullable = false)
 	private String email;
 
-	@Column(name = "password", nullable = false)
+	@Column(nullable = false)
 	private String password;
 
-	@Column(name = "role", nullable = false)
+	@Column(nullable = false)
 	private String role;
 
 	@Column(name = "is_deleted")
@@ -57,8 +57,9 @@ public class User implements UserDetails {
 	private LocalDateTime updatedAt;
 
 	@Builder
-	public User(String name, String email, String password, String role) {
+	public User(String name, String userId, String email, String password, String role) {
 		this.name = name;
+		this.userId = userId;
 		this.email = email;
 		this.password = password;
 		this.role = (role != null) ? role : "ROLE_USER";
@@ -74,9 +75,10 @@ public class User implements UserDetails {
 		return "";
 	}
 
-	public static User create(String name, String email, String password){
+	public static User create(String name, String userId, String email, String password){
 		return User.builder()
 			.name(name)
+			.userId(userId)
 			.email(email)
 			.password(password)
 			.build();

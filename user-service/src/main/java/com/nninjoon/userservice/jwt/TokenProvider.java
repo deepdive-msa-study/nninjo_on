@@ -15,7 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.nninjoon.userservice.domain.User;
-import com.nninjoon.userservice.dto.JwtTokenDto;
+import com.nninjoon.userservice.dto.response.JwtTokenDto;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -32,24 +32,30 @@ public class TokenProvider {
 	// @Autowired
 	// private RefreshTokenInfoRedisRepository refreshTokenInfoRepository; // RefreshToken 정보를 저장하기 위한 Repository
 	private SecretKey secretKey;
+	private Long accessExpiredAt;
+	private Long refreshExpiredAt;
 
 	@PostConstruct
 	private void init() {
-		String key = env.getProperty("jwt.secret");
+		String key = env.getProperty("token.secret");
 
 		if (key == null || key.isEmpty()) {
 			throw new IllegalStateException("token.secret 환경 변수가 설정되지 않았습니다!");
 		}
 		secretKey = Keys.hmacShaKeyFor(key.getBytes());
+		accessExpiredAt = Long.parseLong(env.getProperty("token.expiration-time.access", "3600")); // 기본값 3600초
+		refreshExpiredAt = Long.parseLong(env.getProperty("token.expiration-time.refresh", "604800")); // 기본값 7일
+
 	}
 
 	public JwtTokenDto generateToken(Authentication authentication) {
-		String authorities = authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.joining(","));
+		// String authorities = authentication.getAuthorities().stream()
+		// 	.map(GrantedAuthority::getAuthority)
+		// 	.collect(Collectors.joining(","));
 
 		User userDetails = (User) authentication.getPrincipal();
-		Long userId = userDetails.getId();
+		String userId = userDetails.getUserId();
+		String role = userDetails.getRole();
 		long now = (new Date()).getTime();
 		Date issuedAt = new Date();
 
@@ -61,10 +67,9 @@ public class TokenProvider {
 			.setHeader(createHeaders())
 			.setSubject("accessToken")
 			.claim("iss", "off")
-			.claim("email", authentication.getName())
 			.claim("userId", userId)
-			.claim("auth", authorities)
-			.setExpiration(new Date(now + 1800000)) // 토큰 만료 30분
+			.claim("role", role)
+			.setExpiration(new Date(now + accessExpiredAt)) // 토큰 만료 30분
 			.setIssuedAt(issuedAt)
 			.signWith(secretKey, HS256)
 			.compact();
@@ -73,17 +78,15 @@ public class TokenProvider {
 			.setHeader(createHeaders())
 			.setSubject("refreshToken")
 			.claim("iss", "off")
-			.claim("email", authentication.getName())
-			.claim("id", userId)
-			.claim("auth", authorities)
+			.claim("userId", userId)
+			.claim("role", role)
 			.claim("add", "ref")
-			.setExpiration(new Date(now + 604800000))
+			.setExpiration(new Date(now + refreshExpiredAt))
 			.setIssuedAt(issuedAt)
 			.signWith(secretKey, HS256)
 			.compact();
 
 		return JwtTokenDto.builder()
-			.grantType("Bearer")
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.build();

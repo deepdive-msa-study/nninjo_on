@@ -40,16 +40,16 @@ public class SecurityConfig {
 				-> sessionManagement.sessionCreationPolicy(
 				SessionCreationPolicy.STATELESS
 			))
-			.authorizeHttpRequests((authorizeRequests) ->
-					authorizeRequests
-						.requestMatchers(SWAGGER_PATTERNS).permitAll()
-						.requestMatchers(STATIC_RESOURCES_PATTERNS).permitAll()
-						.requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
-						.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-						.anyRequest().authenticated()
-			)
+			// .authorizeHttpRequests((authorizeRequests) ->
+			// 		authorizeRequests
+			// 			.requestMatchers(SWAGGER_PATTERNS).permitAll()
+			// 			.requestMatchers(STATIC_RESOURCES_PATTERNS).permitAll()
+			// 			.requestMatchers(PERMIT_ALL_PATTERNS).permitAll()
+			// 			.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+			// 			.anyRequest().authenticated()
+			// )
 			.addFilter(authenticationFilter())
-			.httpBasic((httpBasic)-> httpBasic.disable())
+			.httpBasic(AbstractHttpConfigurer::disable)
 			.cors(cors -> cors.configurationSource(request -> {
 				CorsConfiguration config = new CorsConfiguration();
 				config.setAllowedOrigins(List.of("*")); // 허용된 출처 설정
@@ -81,7 +81,7 @@ public class SecurityConfig {
 	};
 
 	private static final String[] PUBLIC_ENDPOINTS = {
-		"/signup",
+		"/open-api/**",
 		"/login"
 	};
 
