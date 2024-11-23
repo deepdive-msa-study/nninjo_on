@@ -7,8 +7,6 @@ import com.nninjoon.postservice.service.CommentService;
 import com.nninjoon.postservice.service.PostService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

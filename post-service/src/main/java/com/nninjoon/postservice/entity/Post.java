@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -43,13 +42,26 @@ public class Post {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostHashtag> postHashtags = new ArrayList<>();
+    // @Builder.Default
+    // @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<PostHashtag> postHashtags = new ArrayList<>();
 
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    public static Post create(String title, String content, String userId){
+        return Post.builder()
+            .title(title)
+            .content(content)
+            .userId(userId)
+            .hits(0)
+            .build();
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
 
 }

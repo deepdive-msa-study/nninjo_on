@@ -1,5 +1,7 @@
 package com.nninjoon.postservice.repository;
 
+import static com.nninjoon.postservice.entity.QPost.post;
+
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -7,11 +9,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.nninjoon.postservice.dto.ReadPostResponseDto;
+import com.nninjoon.postservice.dto.PostResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
+
 
 @Repository
 public class PostJQueryRepository {
@@ -21,16 +24,16 @@ public class PostJQueryRepository {
         queryFactory = new JPAQueryFactory(em);
     }
 
-    public Page<ReadPostResponseDto> findAll(Pageable pageable) {
+    public Page<PostResponse> findAll(Pageable pageable) {
 
-        List<ReadPostResponseDto> dtoList = queryFactory
+        List<PostResponse> dtoList = queryFactory
                 .select(
                         Projections.constructor(
-                                ReadPostResponseDto.class,
+                                PostResponse.class,
                                 post.id,
                                 post.title,
                                 post.content,
-                                post.author
+                                post.userId
                         )
                 )
                 .from(post)

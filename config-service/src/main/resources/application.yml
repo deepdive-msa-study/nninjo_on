@@ -13,7 +13,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/minjo-on/spring-cloud-config
+          uri: https://github.com/minjo-on/blog-config-service
           username: minjo-on
           password: ${GIT_TOKEN}
 

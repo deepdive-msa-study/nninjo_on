@@ -47,8 +47,6 @@ dependencies {
     // Lombok (코드 간소화)
     // Lombok - 반복적인 코드를 줄이기 위해 Getter, Setter, Constructor 등을 자동 생성
     implementation 'org.projectlombok:lombok'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 

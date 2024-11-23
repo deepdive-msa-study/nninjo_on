@@ -25,6 +25,7 @@ public class Hashtag {
     private Long id;
     private String name;
 
+    @Builder.Default
     @OneToMany(mappedBy = "hashtag", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PostHashtag> postHashtags = new ArrayList<>();
 

@@ -1,6 +1,5 @@
 package com.nninjoon.postservice.service;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nninjoon.postservice.dto.CommentResponseDto;
-import com.nninjoon.postservice.dto.PostDetailResponseDto;
-import com.nninjoon.postservice.dto.PostUploadRequestDto;
-import com.nninjoon.postservice.dto.ReadPostResponseDto;
+import com.nninjoon.postservice.dto.CommentResponse;
+import com.nninjoon.postservice.dto.PostDetailResponse;
+import com.nninjoon.postservice.dto.PostPersistResponse;
+import com.nninjoon.postservice.dto.PostUploadRequest;
+import com.nninjoon.postservice.dto.PostResponse;
 import com.nninjoon.postservice.entity.Comment;
 import com.nninjoon.postservice.entity.Hashtag;
 import com.nninjoon.postservice.entity.Post;
@@ -34,124 +34,117 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
     @Transactional(readOnly = true)
-    public Page<ReadPostResponseDto> findAll(Pageable pageable) {
+    public Page<PostResponse> findAll(Pageable pageable) {
         return postJQueryRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
-    public PostDetailResponseDto findById(Long id) {
-        return postToPostDetailDto(authenticateByUsingJWT(id));
+    public PostDetailResponse findById(Long postId) {
+        Post post = getPost(postId);
+        return postToPostDetailDto(post);
     }
 
-    @Transactional
-    public Post authenticateByUsingJWT(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new RuntimeException("Post not found")
-        );
+    @Transactional(readOnly = true)
+    public PostDetailResponse findById(Long postId, String userId) {
+        Post post = getPost(postId);
+        validateUserAuthorization(post.getUserId(), userId);
 
-        if (current.getId().equals(post.getAuthor().getId())) {
-            return post;
-        } else {
-            throw new RuntimeException("Current user is not author");
-        }
+        return postToPostDetailDto(post);
     }
 
-    private static PostDetailResponseDto postToPostDetailDto(Post post) {
+    private PostDetailResponse postToPostDetailDto(Post post) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         List<String> hashtags = new ArrayList<>();
-        for (PostHashtag postHashtag : post.getPostHashtags()) {
-            hashtags.add(postHashtag.getHashtag().getName());
-        }
+        // for (PostHashtag postHashtag : post.getPostHashtags()) {
+        //     hashtags.add(postHashtag.getHashtag().getName());
+        // }
+        //
+        // List<CommentResponse> comments = new ArrayList<>();
+        // for (Comment comment : post.getComments()) {
+        //     comments.add(CommentResponse.from(comment));
+        // }
 
-        List<CommentResponseDto> comments = new ArrayList<>();
-        for (Comment comment : post.getComments()) {
-            comments.add(
-                    CommentResponseDto.builder()
-                            .id(comment.getId())
-                            .content(comment.getContent())
-                            .createdAt(comment.getCreatedAt().format(formatter))
-                            .build()
-            );
-        }
-
-        return PostDetailResponseDto.builder()
+        return PostDetailResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .author("author")
                 .createdAt(post.getCreatedAt().format(formatter))
-                .hashtags(hashtags)
-                .comments(comments)
+                // .hashtags(hashtags)
+                // .comments(comments)
                 .build();
     }
 
     // 글 작성
     @Transactional
-    public PostDetailResponseDto savePost(PostUploadRequestDto dto) {
-        Post post = Post.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .author(user)
-                .hits(0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+    public PostPersistResponse savePost(PostUploadRequest request, String userId) {
+        Post post = Post.create(request.title(), request.content(), userId);
 
-        ArrayList<String> hashtags = dto.getHashtags();
-        saveHashtags(hashtags, post.getId());
+        // List<String> hashtags = request.hashtags();
+        // saveHashtags(hashtags, post.getId());
 
         postRepository.save(post);
 
-        return postToPostDetailDto(post);
+        return PostPersistResponse.from(post);
     }
 
     // 해시태그 저장 및 연결
+    // @Transactional
+    // public void saveHashtags(List<String> hashtags, Long postId) {
+    //     for (String hashtag : hashtags) {
+    //         Optional<Hashtag> foundHashtag = hashtagRepository.findByName(hashtag);
+    //         Hashtag tag = foundHashtag.orElseGet(
+    //                 () -> hashtagRepository.save(
+    //                         Hashtag.builder()
+    //                                 .name(hashtag)
+    //                                 .build()
+    //                 ));
+    //         connectByUsingPostHashtag(postId, tag);
+    //     }
+    //
+    // }
+
+    // private void connectByUsingPostHashtag(Long postId, Hashtag tag) {
+    //     PostHashtag postHashtag = PostHashtag.builder()
+    //             .post(postRepository.findById(postId)
+    //                     .orElseThrow(() -> new RuntimeException("Hashtag not found")))
+    //             .hashtag(tag)
+    //             .build();
+    //     postHashtagRepository.save(postHashtag);
+    //
+    //     tag.getPostHashtags().add(postHashtag);
+    // }
+
     @Transactional
-    public void saveHashtags(ArrayList<String> hashtags, Long postId) {
-        for (String hashtag : hashtags) {
-            Optional<Hashtag> foundHashtag = hashtagRepository.findByName(hashtag);
-            Hashtag tag = foundHashtag.orElseGet(
-                    () -> hashtagRepository.save(
-                            Hashtag.builder()
-                                    .name(hashtag)
-                                    .build()
-                    ));
-            connectByUsingPostHashtag(postId, tag);
-        }
+    public PostDetailResponse updatePost(PostUploadRequest request, Long postId, String userId) {
+        Post post = getPost(postId);
+        validateUserAuthorization(post.getUserId(), userId);
 
-    }
+        post.updateTitle(request.title());
+        post.updateContent(request.content());
 
-    private void connectByUsingPostHashtag(Long postId, Hashtag tag) {
-        PostHashtag postHashtag = PostHashtag.builder()
-                .post(postRepository.findById(postId)
-                        .orElseThrow(() -> new RuntimeException("Hashtag not found")))
-                .hashtag(tag)
-                .build();
-        postHashtagRepository.save(postHashtag);
-
-        tag.getPostHashtags().add(postHashtag);
-    }
-
-    // 바뀐 포스트 저장
-    @Transactional
-    public PostDetailResponseDto updatePost(PostUploadRequestDto dto, Long id) {
-        Post post = authenticateByUsingJWT(id);
-
-        post.setTitle(dto.getTitle());
-        post.setContent(dto.getContent());
-        post.setUpdatedAt(LocalDateTime.now());
-        postRepository.save(post);
-
-        saveHashtags(dto.getHashtags(), post.getId());
+        // saveHashtags(request.hashtags(), post.getId());
 
         return postToPostDetailDto(post);
     }
 
-    // 포스트 삭제
     @Transactional
-    public void deletePost(Long id) {
-        authenticateByUsingJWT(id);
-        postRepository.deleteById(id);
+    public void deletePost(Long postId, String userId) {
+        Post post = getPost(postId);
+        validateUserAuthorization(post.getUserId(), userId);
+
+        postRepository.delete(post);
+    }
+
+    private void validateUserAuthorization(String authorId, String userId) {
+        if (!authorId.equals(userId)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+    }
+
+    private Post getPost(Long postId) {
+        return postRepository.findById(postId)
+            .orElseThrow(()-> new RuntimeException("Post not found."));
     }
 }
