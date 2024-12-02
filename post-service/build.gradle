@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.nninjoon'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 
 java {
     toolchain {
@@ -60,6 +60,7 @@ dependencies {
     // 모니터링 및 관리
     // Spring Boot Actuator - 애플리케이션 상태 모니터링 및 관리 엔드포인트 제공
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     // 테스트 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -68,6 +69,12 @@ dependencies {
     // 서비스 간 통신 관련 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
+
+    // 모니터링
+//    implementation 'io.micrometer:micrometer-observation'
+//    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+//    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
 
 }
 
