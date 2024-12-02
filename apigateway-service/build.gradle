@@ -9,7 +9,7 @@ ext {
 }
 
 group = 'com.nninjoon'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 
 java {
     toolchain {
@@ -43,6 +43,7 @@ dependencies {
     // Spring Boot Actuator (모니터링 및 관리)
     // 애플리케이션 상태 모니터링 및 관리 엔드포인트 제공
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     // Lombok (코드 간소화)
     // Lombok - 반복적인 코드를 줄이기 위해 Getter, Setter, Constructor 등을 자동 생성
