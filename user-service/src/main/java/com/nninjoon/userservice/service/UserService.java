@@ -58,18 +58,22 @@ public class UserService {
 	public UserResponse getMyProfile(String userId) {
 		User user = getUserByUserId(userId);
 
+		log.info("before call post micro service");
 		CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 		List<PostResponse> posts = circuitBreaker.run(() -> postServiceClient.getPosts(userId),
 			throwable -> {
 				log.error("Failed to fetch posts for userId: {}", userId, throwable);
 				return new ArrayList<>();
 			});
+		log.info("after call post micro service");
 
+		log.info("before call comment micro service");
 		List<CommentResponse> comments = circuitBreaker.run(() -> commentServiceClient.getComments(userId),
 			throwable -> {
 				log.error("Failed to fetch comments for userId: {}", userId, throwable);
 				return new ArrayList<>();
 			});
+		log.info("after call comment micro service");
 
 		return UserResponse.of(user.getEmail(), user.getName(), posts, comments);
 	}

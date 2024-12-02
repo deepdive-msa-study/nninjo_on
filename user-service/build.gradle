@@ -9,7 +9,7 @@ ext {
 }
 
 group = 'com.nninjoon'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 
 java {
     toolchain {
@@ -33,7 +33,6 @@ dependencies {
     // 데이터베이스 및 JPA 관련
     // Spring Data JPA - 데이터베이스 작업을 위한 JPA 지원 제공
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
     // postgre Database - 데이터베이스
     runtimeOnly 'org.postgresql:postgresql'
 
@@ -66,6 +65,12 @@ dependencies {
     // 모니터링 및 관리
     // Spring Boot Actuator - 애플리케이션 상태 모니터링 및 관리 엔드포인트 제공
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    //    implementation 'io.micrometer:micrometer-observation'
+//    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+//    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
     // Lombok (코드 간소화)
     // Lombok - 반복적인 코드를 줄이기 위해 Getter, Setter, Constructor 등을 자동 생성
@@ -79,17 +84,24 @@ dependencies {
     // 서비스 간 통신 관련 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    //서비스간 통신 시 에러 처리
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
+
     // 테스트 관련 의존성
     // Spring Boot Test - 통합 테스트 및 Mocking 기능 제공
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // Spring Security Test - 보안 관련 기능의 테스트 지원
     testImplementation 'org.springframework.security:spring-security-test'
+
     // RabbitMQ Test - RabbitMQ 관련 테스트 기능 제공
 //    testImplementation 'org.springframework.amqp:spring-rabbit-test'
     // JUnit Platform Launcher - JUnit 5 기반 테스트 실행기
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
 }
 
 dependencyManagement {

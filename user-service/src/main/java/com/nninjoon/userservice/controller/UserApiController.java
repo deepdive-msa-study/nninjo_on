@@ -12,6 +12,7 @@ import com.nninjoon.userservice.model.response.UserResponse;
 import com.nninjoon.userservice.model.request.UserUpdateRequest;
 import com.nninjoon.userservice.service.UserService;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,6 +22,7 @@ public class UserApiController {
 	private final UserService userService;
 
 	@GetMapping("/mypage")
+	@Timed(value = "users.mypage", longTask = true)
 	public ResponseEntity<UserResponse> getMyProfile(@RequestHeader("X-User-Id") String userId) {
 		return ResponseEntity.ok(userService.getMyProfile(userId));
 	}
