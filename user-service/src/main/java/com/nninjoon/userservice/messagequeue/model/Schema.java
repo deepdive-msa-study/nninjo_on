@@ -6,12 +6,12 @@ import lombok.Builder;
 
 @Builder
 public record Schema(
-	String type,
+	Type type,
 	List<Field> fields,
 	boolean optional,
 	String name
 ) {
-	public static Schema of(String type, List<Field> fields, boolean optional, String name) {
+	public static Schema of(Type type, List<Field> fields, boolean optional, String name) {
 		return Schema.builder()
 			.type(type)
 			.fields(fields)

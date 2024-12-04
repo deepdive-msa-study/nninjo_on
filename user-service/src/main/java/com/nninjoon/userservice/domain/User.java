@@ -93,6 +93,6 @@ public class User implements UserDetails {
 	}
 
 	public void delete(){
-		this.isDeleted=LocalDateTime.now();
+		this.isDeleted = LocalDateTime.now();
 	}
 }

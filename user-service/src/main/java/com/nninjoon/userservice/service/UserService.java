@@ -1,5 +1,8 @@
 package com.nninjoon.userservice.service;
 
+import static com.nninjoon.userservice.messagequeue.model.Type.USER_DELETED;
+import static com.nninjoon.userservice.messagequeue.model.Type.USER_UPDATED;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +18,7 @@ import com.nninjoon.userservice.client.post.PostServiceClient;
 import com.nninjoon.userservice.client.comment.model.CommentResponse;
 import com.nninjoon.userservice.domain.User;
 import com.nninjoon.userservice.client.post.model.PostResponse;
+import com.nninjoon.userservice.messagequeue.UserProducer;
 import com.nninjoon.userservice.model.response.UserResponse;
 import com.nninjoon.userservice.model.request.UserCreateRequest;
 import com.nninjoon.userservice.model.request.UserUpdateRequest;
@@ -33,6 +37,7 @@ public class UserService {
 	private final CircuitBreakerFactory circuitBreakerFactory;
 	private final PostServiceClient postServiceClient;
 	private final CommentServiceClient commentServiceClient;
+	private final UserProducer userProducer;
 
 
 	@Transactional
@@ -58,22 +63,18 @@ public class UserService {
 	public UserResponse getMyProfile(String userId) {
 		User user = getUserByUserId(userId);
 
-		log.info("before call post micro service");
 		CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
 		List<PostResponse> posts = circuitBreaker.run(() -> postServiceClient.getPosts(userId),
 			throwable -> {
 				log.error("Failed to fetch posts for userId: {}", userId, throwable);
 				return new ArrayList<>();
 			});
-		log.info("after call post micro service");
 
-		log.info("before call comment micro service");
 		List<CommentResponse> comments = circuitBreaker.run(() -> commentServiceClient.getComments(userId),
 			throwable -> {
 				log.error("Failed to fetch comments for userId: {}", userId, throwable);
 				return new ArrayList<>();
 			});
-		log.info("after call comment micro service");
 
 		return UserResponse.of(user.getEmail(), user.getName(), posts, comments);
 	}
@@ -85,6 +86,7 @@ public class UserService {
 		user.updateName(request.name());
 		user.updateEmail(request.email());
 
+		userProducer.sendMessage(USER_UPDATED, UserResponse.from(user));
 		return UserResponse.from(user);
 	}
 
@@ -92,6 +94,8 @@ public class UserService {
 	public void deleteMe(String userId) {
 		User user = getUserByUserId(userId);
 		user.delete();
+
+		userProducer.sendMessage(USER_DELETED, UserResponse.from(user));
 	}
 
 	private User getUserByUserId(String userId) {

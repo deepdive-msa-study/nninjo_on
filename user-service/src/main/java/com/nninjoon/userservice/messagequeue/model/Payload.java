@@ -4,13 +4,13 @@ import lombok.Builder;
 
 @Builder
 public record Payload(
-	String userId,
+	String user_id,
 	String email,
 	String name
 ) {
 	public static Payload of(String userId, String email, String name) {
 		return Payload.builder()
-			.userId(userId)
+			.user_id(userId)
 			.email(email)
 			.name(name)
 			.build();
