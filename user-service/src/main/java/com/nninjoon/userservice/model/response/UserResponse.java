@@ -11,6 +11,7 @@ import lombok.Builder;
 
 @Builder
 public record UserResponse(
+	String userId,
 	String email,
 	String name,
 
@@ -19,6 +20,7 @@ public record UserResponse(
 ) {
 	public static UserResponse from(User user) {
 		return UserResponse.builder()
+			.userId(user.getUserId())
 			.email(user.getEmail())
 			.name(user.getName())
 			.build();

@@ -77,6 +77,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    //kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
     // 개발 환경 전용 의존성
     // DevTools - 개발 시 자동 재시작, 캐시 비우기 등 개발자 편의 기능 제공
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
