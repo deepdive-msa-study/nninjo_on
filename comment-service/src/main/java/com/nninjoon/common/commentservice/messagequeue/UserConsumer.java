@@ -22,14 +22,14 @@ public class UserConsumer {
 	private final CommentRepository commentRepository;
 
 	@Transactional
-	@KafkaListener(topics = "user-events-topic", groupId = "post-service-group")
+	@KafkaListener(topics = "user-events-topic", groupId = "comment-service-group")
 	public void consume(String message) {
 		log.info("Kafka Message: -> " + message);
 
 		Map<Object, Object> map = parseKafkaMessage(message);
-		validateKafkaMessage(map);
+		Map<Object, Object> payload = validateKafkaMessage(map);
 
-		commentRepository.anonymizePostsByUserId(map.get("userId").toString());
+		commentRepository.anonymizePostsByUserId(payload.get("user_id").toString());
 	}
 
 	private Map<Object, Object> parseKafkaMessage(String kafkaMessage) {
@@ -41,12 +41,19 @@ public class UserConsumer {
 		}
 	}
 
-	private void validateKafkaMessage(Map<Object, Object> map) {
-		if (!map.containsKey("userId") || !map.containsKey("name")) {
-			throw new IllegalArgumentException("Missing required fields in Kafka message: " + map);
+	private Map<Object, Object> validateKafkaMessage(Map<Object, Object> map) {
+		if (!map.containsKey("payload")) {
+			throw new IllegalArgumentException("Missing 'payload' field in Kafka message: " + map);
 		}
-		if (!(map.get("userId") instanceof String) || !(map.get("name") instanceof String)) {
-			throw new IllegalArgumentException("Invalid field types in Kafka message: " + map);
+
+		Map<Object, Object> payload = (Map<Object, Object>) map.get("payload");
+		if (!payload.containsKey("user_id") || !payload.containsKey("name")) {
+			throw new IllegalArgumentException("Missing required fields in payload: " + payload);
 		}
+		if (!(payload.get("user_id") instanceof String) || !(payload.get("name") instanceof String)) {
+			throw new IllegalArgumentException("Invalid field types in payload: " + payload);
+		}
+
+		return payload;
 	}
 }
