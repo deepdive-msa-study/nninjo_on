@@ -1,5 +1,7 @@
 package com.nninjoon.postservice.service;
 
+import static com.nninjoon.postservice.messagequeue.producer.model.Type.POST_DELETED;
+
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +20,7 @@ import com.nninjoon.postservice.dto.PostPersistResponse;
 import com.nninjoon.postservice.dto.PostUploadRequest;
 import com.nninjoon.postservice.dto.PostResponse;
 import com.nninjoon.postservice.entity.Post;
-import com.nninjoon.postservice.repository.HashtagRepository;
-import com.nninjoon.postservice.repository.PostHashtagRepository;
+import com.nninjoon.postservice.messagequeue.producer.PostProducer;
 import com.nninjoon.postservice.repository.PostJQueryRepository;
 import com.nninjoon.postservice.repository.PostRepository;
 
@@ -34,8 +35,7 @@ public class PostService {
     private final PostJQueryRepository postJQueryRepository;
     private final CommentServiceClient commentServiceClient;
     private final CircuitBreakerFactory circuitBreakerFactory;
-    private final HashtagRepository hashtagRepository;
-    private final PostHashtagRepository postHashtagRepository;
+    private final PostProducer postProducer;
 
     @Transactional(readOnly = true)
     public Page<PostResponse> findAll(Pageable pageable) {
@@ -67,12 +67,6 @@ public class PostService {
 
     private PostDetailResponse postToPostDetailDto(Post post) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        // List<String> hashtags = new ArrayList<>();
-        // for (PostHashtag postHashtag : post.getPostHashtags()) {
-        //     hashtags.add(postHashtag.getHashtag().getName());
-        // }
-
         CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
         List<CommentResponse> comments = circuitBreaker.run(() ->commentServiceClient.getComments(post.getId()),
             throwable -> {
@@ -93,41 +87,8 @@ public class PostService {
     @Transactional
     public PostPersistResponse savePost(PostUploadRequest request, String userId) {
         Post post = Post.create(request.title(), request.content(), userId);
-
-        // List<String> hashtags = request.hashtags();
-        // saveHashtags(hashtags, post.getId());
-
-        postRepository.save(post);
-
-        return PostPersistResponse.from(post);
+        return PostPersistResponse.from(postRepository.save(post));
     }
-
-    // 해시태그 저장 및 연결
-    // @Transactional
-    // public void saveHashtags(List<String> hashtags, Long postId) {
-    //     for (String hashtag : hashtags) {
-    //         Optional<Hashtag> foundHashtag = hashtagRepository.findByName(hashtag);
-    //         Hashtag tag = foundHashtag.orElseGet(
-    //                 () -> hashtagRepository.save(
-    //                         Hashtag.builder()
-    //                                 .name(hashtag)
-    //                                 .build()
-    //                 ));
-    //         connectByUsingPostHashtag(postId, tag);
-    //     }
-    //
-    // }
-
-    // private void connectByUsingPostHashtag(Long postId, Hashtag tag) {
-    //     PostHashtag postHashtag = PostHashtag.builder()
-    //             .post(postRepository.findById(postId)
-    //                     .orElseThrow(() -> new RuntimeException("Hashtag not found")))
-    //             .hashtag(tag)
-    //             .build();
-    //     postHashtagRepository.save(postHashtag);
-    //
-    //     tag.getPostHashtags().add(postHashtag);
-    // }
 
     @Transactional
     public PostDetailResponse updatePost(PostUploadRequest request, Long postId, String userId) {
@@ -137,8 +98,6 @@ public class PostService {
         post.updateTitle(request.title());
         post.updateContent(request.content());
 
-        // saveHashtags(request.hashtags(), post.getId());
-
         return postToPostDetailDto(post);
     }
 
@@ -147,6 +106,7 @@ public class PostService {
         Post post = getPost(postId);
         validateUserAuthorization(post.getUserId(), userId);
 
+        postProducer.sendMessage(POST_DELETED, postId);
         postRepository.delete(post);
     }
 

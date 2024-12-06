@@ -1,4 +1,4 @@
-package com.nninjoon.postservice.messagequeue;
+package com.nninjoon.postservice.messagequeue.consumer;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
