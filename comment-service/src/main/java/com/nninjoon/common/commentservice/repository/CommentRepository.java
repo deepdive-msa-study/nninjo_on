@@ -17,4 +17,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	@Modifying
 	@Query("UPDATE Comment p SET p.userId = 'anonymous' WHERE p.userId = :userId")
 	void anonymizePostsByUserId(@Param("userId") String userId);
+
+	void deleteByPostId(Long postId);
 }
