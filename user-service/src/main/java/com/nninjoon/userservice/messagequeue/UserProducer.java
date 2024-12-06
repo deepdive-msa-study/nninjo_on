@@ -30,6 +30,7 @@ public class UserProducer {
 
 
 	public void sendMessage(Type type, UserResponse response) {
+		log.info("Preparing to send Kafka message for user: {}", response);
 		Payload payload = Payload.of(response.userId(), response.email(), response.name());
 		Schema schema = Schema.of(type, fields, false, "users");
 
@@ -46,7 +47,6 @@ public class UserProducer {
 		}
 
 		kafkaTemplate.send("user-events-topic", message);
-		log.info("User Producer sent data from the User microservice: " + kafkaUserDto);
-
+		log.info("User Producer sent data from the User microservice: {}", kafkaUserDto);
 	}
 }

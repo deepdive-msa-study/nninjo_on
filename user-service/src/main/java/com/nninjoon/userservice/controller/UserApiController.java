@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nninjoon.userservice.messagequeue.UserProducer;
 import com.nninjoon.userservice.model.response.UserResponse;
 import com.nninjoon.userservice.model.request.UserUpdateRequest;
 import com.nninjoon.userservice.service.UserService;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 public class UserApiController {
 	private final UserService userService;
+	private final UserProducer userProducer;
 
 	@GetMapping("/mypage")
 	@Timed(value = "users.mypage", longTask = true)

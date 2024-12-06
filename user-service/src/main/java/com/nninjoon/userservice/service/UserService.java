@@ -86,7 +86,6 @@ public class UserService {
 		user.updateName(request.name());
 		user.updateEmail(request.email());
 
-		userProducer.sendMessage(USER_UPDATED, UserResponse.from(user));
 		return UserResponse.from(user);
 	}
 

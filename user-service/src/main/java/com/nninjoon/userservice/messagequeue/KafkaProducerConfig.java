@@ -1,4 +1,4 @@
-package com.nninjoon.userservice.config;
+package com.nninjoon.userservice.messagequeue;
 
 import java.util.HashMap;
 import java.util.Map;
